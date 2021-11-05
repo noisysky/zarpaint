@@ -121,11 +121,18 @@ def create_labels(
     else:  # use default
         chunks = (1,) * (source_image.ndim - 2) + (128, 128)
 
-    layer_data = open_tensorstore(
+    if isinstance(source_image.data, list):  # multiscale data
+        layer_data = open_tensorstore(
+            labels_file,
+            shape=source_image.data[0].shape,
+            chunks=source_image.data[0].chunksize,
+        )
+    else:
+        layer_data = open_tensorstore(
             labels_file,
             shape=source_image.data.shape,
             chunks=chunks,
-            )
+        )
     layer_type = 'labels'
     layer_metadata = {
             'scale': source_image.scale,
